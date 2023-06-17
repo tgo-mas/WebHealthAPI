@@ -21,3 +21,5 @@ const Medico = connection.define("medico", {
         allowNull: false
     }
 });
+
+module.exports = Medico;
