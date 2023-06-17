@@ -2,6 +2,9 @@ const cors = require("cors");
 const morgan = require("morgan");
 const express = require("express");
 require("dotenv").config();
+const Paciente = require("./database/paciente");
+const Medico = require("./database/medico");
+const Agendamento = require("./database/agendamento");
 
 // App Config
 const app = express();
@@ -10,6 +13,10 @@ app.use(morgan("dev"));
 
 // Access Config
 app.use(cors({ origin: "http://localhost:3000"}));
+
+const rotasPacientes = require("./routes/pacientes");
+
+app.use(rotasPacientes);
 
 // Database Config
 const { connection, authenticate } = require("./database/database");
