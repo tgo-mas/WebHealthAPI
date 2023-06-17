@@ -13,7 +13,7 @@ const Paciente = connection.define("paciente", {
         allowNull: false
     },
     telefone: {
-        type: DataTypes.STRING(11),
+        type: DataTypes.STRING(12),
         allowNull: false
     },
     endereco: {

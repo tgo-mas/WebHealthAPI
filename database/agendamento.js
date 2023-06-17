@@ -21,6 +21,6 @@ const Medico = require("./medico");
 const Paciente = require("./paciente");
 
 // Relacionamento: Agendamento possui um médico e um paciente. (N:1 e N:1)
-Agendamento.hasOne(Medico);
-Agendamento.hasOne(Paciente);
+Medico.hasMany(Agendamento);
+Paciente.hasMany(Agendamento);
 
