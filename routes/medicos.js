@@ -62,15 +62,15 @@ router.delete("/medicos/:id", async (req, res) => {
     const { id } = req.params;
 
     const medico = await Medico.findByPk(id);
-    
-    try{
-        if(medico){
+
+    try {
+        if (medico) {
             await medico.destroy();
             res.json("Médico removido com sucesso!");
-        }else{
+        } else {
             res.status(404).send(`Erro 404: Médico não encontrado.`);
         }
-    }catch(err){
+    } catch (err) {
         res.status(500).send(`Erro interno: ${err.message}`);
     }
 });
