@@ -13,11 +13,7 @@ router.get("/pacientes", async (req, res) => {
 
 // GET - Obter um paciente
 router.get("/pacientes/:id", async (req, res) => {
-    const paciente = await Paciente.findOne({
-        where: {
-            id: req.params.id
-        }
-    });
+    const paciente = await Paciente.findByPk(req.params.id);
 
     if (paciente) {
         res.json(paciente);
@@ -84,6 +80,6 @@ router.delete("/pacientes/:id", async (req, res) => {
         res.status(500).send(`Um erro inesperado aconteceu: ${err.message}`);
     }
 
-});
+}); 
 
 module.exports = router;
