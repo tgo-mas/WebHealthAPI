@@ -21,6 +21,9 @@ const Medico = require("./medico");
 const Paciente = require("./paciente");
 
 // Relacionamento: Agendamento possui um médico e um paciente. (N:1 e N:1)
-Medico.hasMany(Agendamento);
-Paciente.hasMany(Agendamento);
+Medico.hasMany(Agendamento, { foreignKey: 'medicoId', as: 'agendamento'});
+Agendamento.belongsTo(Medico, { foreignKey: 'medicoId', as: 'medico'});
+Paciente.hasMany(Agendamento, {foreignKey: 'pacienteId', as: 'agendamento'});
+Agendamento.belongsTo(Paciente, { foreignKey: 'pacienteId', as: 'paciente'});
 
+module.exports = Agendamento;

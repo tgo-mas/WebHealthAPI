@@ -16,9 +16,11 @@ app.use(cors({ origin: "http://localhost:3000"}));
 
 const rotasPacientes = require("./routes/pacientes");
 const rotasMedicos = require("./routes/medicos");
+const rotasAgendamentos = require("./routes/agendamentos");
 
 app.use(rotasPacientes);
 app.use(rotasMedicos);
+app.use(rotasAgendamentos);
 
 // Database Config
 const { connection, authenticate } = require("./database/database");
