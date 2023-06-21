@@ -15,8 +15,10 @@ app.use(morgan("dev"));
 app.use(cors({ origin: "http://localhost:3000"}));
 
 const rotasPacientes = require("./routes/pacientes");
+const rotasMedicos = require("./routes/medicos");
 
 app.use(rotasPacientes);
+app.use(rotasMedicos);
 
 // Database Config
 const { connection, authenticate } = require("./database/database");
