@@ -3,6 +3,7 @@ const Agendamento = require("../database/agendamento");
 const { Router } = require("express");
 const Medico = require("../database/medico");
 const Paciente = require("../database/paciente");
+const { checkHorario } = require("../service/horario");
 
 const router = Router();
 
@@ -44,24 +45,43 @@ router.get("/agendamentos/:id", async (req, res) => {
 
 // POST - Cadastrar um agendamento
 router.post("/agendamentos", async (req, res) => {
-    const { datetimeInic, datetimeFim, observacoes, medicoId, pacienteId } = req.body;
+    const agend = req.body;
 
-    const medico = await Medico.findByPk(medicoId);
-    const paciente = await Paciente.findByPk(pacienteId);
+    const medico = await Medico.findByPk(agend.medicoId);
+    const paciente = await Paciente.findByPk(agend.pacienteId);
 
     if (!medico || !paciente) {
         res.status(404).send("Erro 404: Médico ou paciente não encontrado(s)!");
         return;
     }
 
-    try {
-        const novoAgendamento = await Agendamento.create(
-            { datetimeInic, datetimeFim, observacoes, medicoId, pacienteId }
-        );
+    const agendsMedico = await Agendamento.findAll({
+        where: {
+            medicoId: agend.medicoId
+        }
+    });
 
-        res.status(201).json(novoAgendamento);
-    } catch (err) {
-        res.status(500).send(`Um erro interno aconteceu: ${err.message}`);
+    const agendsPaciente = await Agendamento.findAll({
+        where: {
+            pacienteId: agend.pacienteId
+        }
+    });
+
+    console.log(agendsMedico);
+    console.log(agendsPaciente);
+
+    if (checkHorario(agendsMedico, agend)) {
+        res.status(401).json({message: "O médico escolhido está ocupado no horário solicitado."});
+    } else if (checkHorario(agendsPaciente, agend)) {
+        res.status(401).json({message: "O paciente escolhido está ocupado no horário solicitado."});
+    } else {
+        try {
+            const novoAgendamento = await Agendamento.create(agend);
+
+            res.status(201).json(novoAgendamento);
+        } catch (err) {
+            res.status(500).send(`Um erro interno aconteceu: ${err.message}`);
+        }
     }
 });
 
