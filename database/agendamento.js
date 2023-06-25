@@ -14,6 +14,11 @@ const Agendamento = connection.define("agendamento", {
     observacoes: {
         type: DataTypes.STRING,
         allowNull: true
+    },
+    status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'Pendente'
     }
 });
 

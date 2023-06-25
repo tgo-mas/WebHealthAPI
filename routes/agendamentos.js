@@ -4,18 +4,60 @@ const { Router } = require("express");
 const Medico = require("../database/medico");
 const Paciente = require("../database/paciente");
 const { checkHorario } = require("../service/horario");
+const { QueryTypes } = require("sequelize");
+const sequelize = require("../database/sequelize");
 
 const router = Router();
 
 // GET - Obter todos os agendamentos
 router.get("/agendamentos", async (req, res) => {
+    const { data, status, medico, paciente } = req.query;
+    let listaAgendamentos = [];
+
     try {
-        const listaAgendamentos = await Agendamento.findAll({
-            include: [
-                { model: Medico, as: 'medico', attributes: ['nome'] },
-                { model: Paciente, as: 'paciente', attributes: ['nome'] },
-            ]
-        });
+        if (data) {
+            listaAgendamentos = await sequelize.query(
+                `SELECT * FROM agendamentos a
+                WHERE CAST(a.datetimeInic AS DATE) = '${data}'`,
+                {
+                    model: Agendamento,
+                    type: QueryTypes.SELECT
+                }
+            );
+        } else if (status) {
+            listaAgendamentos = await Agendamento.findAll({
+                where: {
+                    status: status
+                }
+            });
+        } else if (medico) {
+            listaAgendamentos = await sequelize.query(
+                `SELECT * FROM agendamentos a 
+                    JOIN medicos m ON (a.medicoId = m.id)
+                    WHERE m.nome LIKE '%${medico}%'`,
+                {
+                    model: Agendamento,
+                    type: QueryTypes.SELECT
+                }
+            );
+        } else if (paciente) {
+            listaAgendamentos = await sequelize.query(
+                `SELECT * FROM agendamentos a 
+                    JOIN pacientes p ON (a.medicoId = p.id)
+                    WHERE p.nome LIKE '%${paciente}%'`,
+                {
+                    model: Agendamento,
+                    type: QueryTypes.SELECT
+                }
+            );
+        } else {
+            listaAgendamentos = await Agendamento.findAll({
+                include: [
+                    { model: Medico, as: 'medico', attributes: ['nome'] },
+                    { model: Paciente, as: 'paciente', attributes: ['nome'] },
+                ]
+            });
+        }
 
         res.json(listaAgendamentos);
     } catch (err) {
@@ -71,9 +113,9 @@ router.post("/agendamentos", async (req, res) => {
     console.log(agendsPaciente);
 
     if (checkHorario(agendsMedico, agend)) {
-        res.status(401).json({message: "O médico escolhido está ocupado no horário solicitado."});
+        res.status(401).json({ message: "O médico escolhido está ocupado no horário solicitado." });
     } else if (checkHorario(agendsPaciente, agend)) {
-        res.status(401).json({message: "O paciente escolhido está ocupado no horário solicitado."});
+        res.status(401).json({ message: "O paciente escolhido está ocupado no horário solicitado." });
     } else {
         try {
             const novoAgendamento = await Agendamento.create(agend);
