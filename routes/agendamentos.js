@@ -15,47 +15,36 @@ router.get("/agendamentos", async (req, res) => {
     let listaAgendamentos = [];
 
     try {
+        listaAgendamentos = await Agendamento.findAll({
+            include: [
+                { model: Medico, as: 'medico', attributes: ['nome'] },
+                { model: Paciente, as: 'paciente', attributes: ['nome'] },
+            ]
+        });
+
         if (data) {
-            listaAgendamentos = await sequelize.query(
-                `SELECT * FROM agendamentos a
-                WHERE CAST(a.datetimeInic AS DATE) = '${data}'`,
-                {
-                    model: Agendamento,
-                    type: QueryTypes.SELECT
-                }
-            );
-        } else if (status) {
-            listaAgendamentos = await Agendamento.findAll({
-                where: {
-                    status: status
-                }
+            listaAgendamentos = listaAgendamentos.filter((agend) => {
+                return (
+                    agend.datetimeInic.toString().includes(data)
+                );
             });
+        } else if (status) {
+            listaAgendamentos = listaAgendamentos.filter((agend) => {
+                return (
+                    agend.status === status
+                );
+            })
         } else if (medico) {
-            listaAgendamentos = await sequelize.query(
-                `SELECT * FROM agendamentos a 
-                    JOIN medicos m ON (a.medicoId = m.id)
-                    WHERE m.nome LIKE '%${medico}%'`,
-                {
-                    model: Agendamento,
-                    type: QueryTypes.SELECT
-                }
-            );
+            listaAgendamentos = listaAgendamentos.filter((agend) => {
+                return (
+                    agend.medico.nome.toLowerCase().includes(medico.toLowerCase())
+                );
+            })
         } else if (paciente) {
-            listaAgendamentos = await sequelize.query(
-                `SELECT * FROM agendamentos a 
-                    JOIN pacientes p ON (a.medicoId = p.id)
-                    WHERE p.nome LIKE '%${paciente}%'`,
-                {
-                    model: Agendamento,
-                    type: QueryTypes.SELECT
-                }
-            );
-        } else {
-            listaAgendamentos = await Agendamento.findAll({
-                include: [
-                    { model: Medico, as: 'medico', attributes: ['nome'] },
-                    { model: Paciente, as: 'paciente', attributes: ['nome'] },
-                ]
+            listaAgendamentos = listaAgendamentos.filter((agend) => {
+                return (
+                    agend.paciente.nome.toLowerCase().includes(paciente.toLowerCase())
+                )
             });
         }
 
